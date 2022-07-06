@@ -72,8 +72,9 @@ Intermediately methylated regions are ignored that overlap with known regions th
 
 ### Binokulars
 
-Using the set of intermediately methylated regions from BinPolish, Binokulars assigns a p-value to each region, allowing users to identify significant JRCs.
-Binokulars uses the list of JRCs and a Single Fragment Epiread format file (produced by BISCUIT) to complete its analysis. 
+Using the set of intermediately methylated regions from BinPolish, binokulars assigns a p-value to each region, allowing users to identify significant JRCs. Binokulars uses the list of JRCs and a Single Fragment Epiread format file (produced by BISCUIT) to complete its analysis. 
+
+Binokulars, named after its method (Binomial likelihood function-based bootstrap hypothesis test for co-methylation within reads), can be found [here](https://github.com/BenjaminPlanterose/Binokulars).
 
 ## Quality Control
 
@@ -129,7 +130,7 @@ A sorted, indexed BAM with duplicate marked reads is required to run this analys
 
 #### Reference Genome
 
-A referenc genome is required to run JRC_seeker and JRC_seeker has asset files supporting the use of the hg19 and hg38 reference genomes.
+A reference genome is required to run JRC_seeker and JRC_seeker has asset files supporting the use of the hg19 and hg38 reference genomes.
 
 The reference genome you use must be indexed using the BISCUIT ```index``` command. To download and index a reference genome, you can run the following command (for hg19):
 
@@ -179,9 +180,7 @@ Please be aware that even if you have a reference genome for a single chromosome
 
 Regions with low mappability can result in false positive JRC regions, which is why regions with low mappability are removed during BinPolish. In the ```/assets/mappability_files``` directory, two files are included (for hg19 and hg38) that contain a list of regions of the genome that are uniquely mappable by at least one k-mer (in our case, k=100).
 
-These files are the Bismap individual k-mer files for Human hg19 and Human hg38 genomes (k100 Single-read), which were downloaded from:
-
-https://bismap.hoffmanlab.org/
+These files are the Bismap individual k-mer files for Human hg19 and Human hg38 genomes (k100 Single-read), which were downloaded from: https://bismap.hoffmanlab.org/
 
 ##### Blacklist Regions
 
@@ -229,6 +228,8 @@ conda install -c bioconda bedtools
 ```
 
 ### [samtools](http://www.htslib.org/doc/samtools.html)
+
+Recommended version: 1.14
 
 ```
 conda install -c bioconda samtools
@@ -288,7 +289,7 @@ conda install -c conda-forge biopython=1.79
 ## Running JRC Seeker
 Go into the JRC Seeker directory by:
 ```
-cd <Path to JRC Seeker>
+cd <Path to JRC_Seeker>
 ```
 Make sure to activate the conda environment by: 
 ```
@@ -298,16 +299,16 @@ conda activate jrc_seeker
 snakemake --cores [amount of cores] --configfile [path to config file]
 ```
 
+*Note:* It is recommended to run with 1 core and specify in the ```config.json``` file the number of cores to run the binokulars step with. If the number of snakemake cores is above 1, the number of cores the final binokulars step uses will be the product of the snakemake cores and the value of the ```binokulars_cores``` field in the ```config.json``` file.
+
+
 ### Test run
 In order to perform a testrun of JRC Seeker go into the JRC Seeker directory and execute the following command:
 ```
-snakemake --cores [amount of cores] --configfile test_data/config_test.json
+snakemake --cores [amount of cores] --configfile sample_data/config_test.json
 ```
 
-It is recommended to run with 1 core and specify in the ```config.json``` file the number of cores to run the binokulars step with. If the number of snakemake cores is above 1, the number of cores the final binokulars step uses will be the product of the snakemake cores and the value of the ```binokulars_cores``` field in the ```config.json``` file.
-
-
-## Config file
+## Config file parameters
 
 Paths to change:
 
@@ -345,6 +346,8 @@ Model parameters:
 ```
 bin_size : size of bins for binzarization and ChromHMM segmentation. Measured in base pairs. Recommended not to change. (default: 200)
 
+region : if a specific region of the BAM file is to be investigated OR if the BAM file contains one chromosome, specify this here (e.g. "chr1" or "chr20:0-1000"). Only one region is permitted and if changing this setting, ensure that the chromosomes.txt file is manually created (see instructions above). In most circumstances, the entire BAM file is to be processed and this should thus be set to "none". (default: "none")
+
 lower_im_methylation_bound : intermediately methylated methylation value for lower boundary for binarization. Recommended not to change (default: 0.2)
 
 upper_im_methylation_bound : intermediately methylated methylation value for upper boundary for binarization. Recommended not to change (default: 0.8)
@@ -354,6 +357,8 @@ data_assignment_setting : if (un)methylated counts are on the bin boundary, they
 k_threshold : threshold for number of reads needed for bin to not be set to a no-data state (see "Binarize methylation data" section). (default: 3)
 
 n_states : number of states for ChromHMM to predict. Binarize subroutine depends on 4 states. Recommended not to change. (default: "4")
+
+chromhmm_it : number of ChromHMM iterations. Recommend 500 to ensure convergence, but ChromHMM default for maxiterations in the LearnModel command is 200. (default: "500")
 
 map_threshold : threshold overlap coverage (as a percent) of intermediately methylated regions overlapping with low mappability regions for them to be discarded. Recommend not to change (default: 0.95)
 
@@ -370,9 +375,9 @@ flank_length : number of base pairs that binokulars flanks regions by. Recommend
 
 ## Sample Data
 
-In the ```/sample_data``` folder you can find some sample files to get binokulars running. Below you can find an explanation of where these files come from and how we created them, just in case you were interested:
+In the ```/sample_data``` folder you can find some sample files to test if JRC Seeker is running properly on your machine. Below you can find an explanation of where these files come from and how we created them, just in case you were interested:
 
-**sample.bam - Sample BAM file**
+**sample_data.bam - Sample BAM file**
 
 This BAM file is of data from chromosome 20 of the pooled blood data from old and young men from the following study: https://www.ebi.ac.uk/ena/browser/view/PRJEB28044?show=reads.
 
@@ -380,46 +385,47 @@ This BAM file is of data from chromosome 20 of the pooled blood data from old an
 samtools view -b pooled_blood_hg38.bam chr20 > chr_20.bam
 ```
 
-To reduce the file size, 10% of aligned reads were selected using the following command:
+To reduce the file size, The first million aligned reads were selected using the following command:
 
 ```
-samtools view -bo sample.bam -s 123.1 chr_20.bam 
+samtools view -h chr_20.bam \
+    | head -n 1000000 \
+    | samtools view -b -o sample_data.bam
 ```
 
-**sample.bam.csi - BAM index**
+**sample_data.bam.csi - BAM index**
 
 The BAM file was indexed using the following command:
 
 ```
-samtools index -c sample.bam
+samtools index -c sample_data.bam
 ```
 
 **chromosomes.txt - chromosomes list**
 
-A list of chromosmes, as outlined earlier. As this comprised of only data from chromosome 21, the chromosomes.txt file is simply one line:
+A list of chromosmes, as outlined earlier. As this comprised of only data from chromosome 20, the chromosomes.txt file is simply one line:
 
 ```
-chr21
+chr20
 ```
 
 **test_config.json - sample config file**
 
-The sample config file contains the settings for this run. As we are only looking at chromosome 21, the region is set to ```"chr21"```.
+The sample config file contains the settings for this run. As we are only looking at chromosome 20, the region is set to ```"chr20"```.
+
 **Reference genome**
 
-In the ```/reference_genome``` directory, you can find ```chr21.fa```, a FASTA file of the reference genome of Hg38 for chromosomome 21, which was downloaded from: https://www.ncbi.nlm.nih.gov/nuccore/CM000683.2?report=fasta
+In the ```/reference_genome``` directory, you can find ```chr20.fa```, a FASTA file of the reference genome of hg38 for chromosomome 20, which was downloaded [from this Genome Reference Consortium source](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/) using the following command: 
+
+```
+wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr20.fa.gz
+gunzip chr20.fa.gz
+```
 
 The FASTA file was indexed by BISCUIT using the following command, which generated the additional files:
 
 ```
-biscuit index chr21.fa
-```
-
-Reference genomes are quite heavy files. To get set up with a reference genome, you can download version Hg19 and index it with BISCUIT using the code below. Be aware that indexing a reference genome can take time, but only needs to be done once.
-
-```
-wget https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/latest/hg19.fa.gz
-biscuit index hg19.fa.gz
+biscuit index chr20.fa
 ```
 
 ## Time 
@@ -438,5 +444,3 @@ Faust, G.G. and Hall, I.M., “SAMBLASTER: fast duplicate marking and structural
 Amemiya, H.M., Kundaje, A. & Boyle, A.P. The ENCODE Blacklist: Identification of Problematic Regions of the Genome. Sci Rep 9, 9354 (2019). https://doi.org/10.1038/s41598-019-45839-z
 
 Karimzadeh M, Ernst C, Kundaje A, Hoffman MM. 2018. Umap and Bismap: quantifying genome and methylome mappability. doi: https://doi.org/10.1093/nar/gky677 Nucleic Acids Research, Volume 46, Issue 20, 16 November 2018, Page e120.
-
-# cite binokulars!!!
