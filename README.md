@@ -215,10 +215,12 @@ Intermediately methylated regions are ignored that overlap with known regions th
 1. Merge IM regions that are separated by 200bp
 2. If small IM regions are within two larger regions, classify as the state of the earlier large region
 3. If two IM regions are separated by a 400bp region that has less than two CpGs, merge these IM regions
-4. Merge IM regions that are separated by 200bp (again)
-5. States with CpG density <= 2 are turned to no-data states
-6. If small IM regions are within two larger regions, classify as the state of the earlier large region (again)
-7. Remove small regions (<= 200 bp)
+4. If IM region is classified wrongly, re-classify
+5. Merge IM regions that are separated by 200bp (again)
+6. If a state <=600bp is within two IM states that have higher cpg density, merge
+7. States with CpG density <= 2 are turned to no-data states
+8. If small IM regions are within two larger regions, classify as the state of the earlier large region (again)
+9. Remove small regions (<= 200 bp)
 
 ### Binokulars
 
