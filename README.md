@@ -214,7 +214,7 @@ Intermediately methylated regions are ignored that overlap with known regions th
 
 1. Merge IM regions that are separated by 200bp
 2. If small IM regions are within two larger regions, classify as the state of the earlier large region
-3. If two IM regions are separated by a 400bp region that has less than two CpGs, merge these IM regions
+3. If two IM regions are separated by a region that has less than one CpG, merge these IM regions
 4. If IM region is classified wrongly, re-classify
 5. Merge IM regions that are separated by 200bp (again)
 6. If a state <=600bp is within two IM states that have higher cpg density, merge
