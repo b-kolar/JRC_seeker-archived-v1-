@@ -2,7 +2,7 @@
 
 <img src="https://user-images.githubusercontent.com/52743495/173834089-526c540a-df4b-452f-964e-26104bf6f261.png" width="350" />
 
-**JRC Seeker** is a tool for identifying jointly regulated CpGs (JRCs) in the human methylome. These regions can be classified into a number of genomic phenomenon, such as imprinting regions or methylation quantitative trait loci (mQTLs). Developed by the Genetic Identification Lab at Erasmus Medical Center, a BAM file of WGBS reads can be inputted and the result of this tool is a list of JRC locations and their associated p-values. JRC Seeker is built using a Snakemake pipeline that combines Python scripts with Linux shell commands. 
+**JRC_seeker** is a tool for identifying jointly regulated CpGs (JRCs) in the human methylome. These regions can be classified into a number of genomic phenomenon, such as imprinting regions or methylation quantitative trait loci (mQTLs). Developed by the Genetic Identification Lab at Erasmus Medical Center, a BAM file of WGBS reads can be inputted and the result of this tool is a list of JRC locations and their associated p-values. JRC_seeker is built using a Snakemake pipeline that combines Python scripts with Linux shell commands. 
 
 ## Requirements
 ```
@@ -118,7 +118,6 @@ Download and install conda if you do not have it already on your machine.
 ```
 wget https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh
 bash Anaconda3-2021.11-Linux-x86_64.sh
-
 ```
 
 ## Downloading JRC Seeker
@@ -260,10 +259,10 @@ Now that you have JRC_seeker and its dependencies installed, you are ready to ro
 
 1. **Prepare input files** - Get your data ready for analysis and prepare input files in required formats.
 2. **Edit the configuration file** - Adjust settings in the ```config.json``` file to suit your analysis needs.
-3. **Run JRC Seeker** - Run the snakemake pipeline.
+3. **Run JRC_seeker** - Run the snakemake pipeline.
 
 ### Prepare input files
-To use JRC Seeker, the following files are required:
+To use JRC_seeker, the following files are required:
 1. BAM file
 2. Reference Genome
 3. Chromosomes file
