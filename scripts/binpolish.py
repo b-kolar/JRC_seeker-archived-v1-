@@ -7,7 +7,7 @@ import os.path
 from os import path
 from argparse import ArgumentParser
 
-def bin_polish(segment_file, cpg_intersect_file, mappability_file, meth_unmeth_intersect_file, blacklist_file, output_path, region_output_path, im_state, nd_state, m_state, u_state, map_threshold, segment_min_sz):
+def bin_polish(segment_file, cpg_intersect_file, mappability_file, meth_unmeth_intersect_file, blacklist_file, output_path, region_output_path, im_state, nd_state, m_state, u_state, map_threshold, segment_min_sz, bin_sz):
 
     ############################################
     # READ IN CHROMHMM SEGMENTATION FILE
@@ -52,9 +52,12 @@ def bin_polish(segment_file, cpg_intersect_file, mappability_file, meth_unmeth_i
    
     ###########################################
     # POLISHING ALGORITHM
+    
+    medium_thresh = 2*bin_sz
+    larger_thresh = 3*bin_sz
 
     # 1 - If 2 IM regions are separated by 1 200 bp bin, merge these regions
-    df.loc[(df['state'] != im_state) & (df['state'] != nd_state) &(df["state"].shift(-1) == im_state) & (df["state"].shift(1) == im_state) & (df['segment_length'] == 200) & (df["chr"].shift(1) == df['chr']) & (df["chr"].shift(-1) == df['chr']), 'state'] = im_state
+    df.loc[(df['state'] != im_state) & (df['state'] != nd_state) &(df["state"].shift(-1) == im_state) & (df["state"].shift(1) == im_state) & (df['segment_length'] == bin_sz) & (df["chr"].shift(1) == df['chr']) & (df["chr"].shift(-1) == df['chr']), 'state'] = im_state
     df = clean_df(df)
     num_im_regions(df.copy(), im_state, og_chrom)
     
@@ -63,8 +66,8 @@ def bin_polish(segment_file, cpg_intersect_file, mappability_file, meth_unmeth_i
     print("1 SSE: ", temp)  
    
     # 2 - If small IM region is within two large other regions => classify as earlier bin state
-    df.loc[(df['state'] == im_state) & (df["state"].shift(1) != im_state) & (df['segment_length'].shift(-1) >= 600) & (df["state"].shift(-1) != im_state) & (df['segment_length'].shift(+1) >= 600) & (df['segment_length'] == 200) & (df["chr"].shift(1) == df['chr']) & (df["chr"].shift(-1) == df['chr']) & (df["segment_length"].shift(+1) >= df["segment_length"].shift(-1)), 'state'] = df['state'].shift(+1)
-    df.loc[(df['state'] == im_state) & (df["state"].shift(1) != im_state) & (df['segment_length'].shift(-1) >= 600) & (df["state"].shift(-1) != im_state) & (df['segment_length'].shift(+1) >= 600) & (df['segment_length'] == 200) & (df["chr"].shift(1) == df['chr']) & (df["chr"].shift(-1) == df['chr']) & (df["segment_length"].shift(-1) > df["segment_length"].shift(+1)), 'state'] = df['state'].shift(-1)
+    df.loc[(df['state'] == im_state) & (df["state"].shift(1) != im_state) & (df['segment_length'].shift(-1) >= larger_thresh) & (df["state"].shift(-1) != im_state) & (df['segment_length'].shift(+1) >= larger_thresh) & (df['segment_length'] == bin_sz) & (df["chr"].shift(1) == df['chr']) & (df["chr"].shift(-1) == df['chr']) & (df["segment_length"].shift(+1) >= df["segment_length"].shift(-1)), 'state'] = df['state'].shift(+1)
+    df.loc[(df['state'] == im_state) & (df["state"].shift(1) != im_state) & (df['segment_length'].shift(-1) >= larger_thresh) & (df["state"].shift(-1) != im_state) & (df['segment_length'].shift(+1) >= larger_thresh) & (df['segment_length'] == bin_sz) & (df["chr"].shift(1) == df['chr']) & (df["chr"].shift(-1) == df['chr']) & (df["segment_length"].shift(-1) > df["segment_length"].shift(+1)), 'state'] = df['state'].shift(-1)
     df = clean_df(df)
     num_im_regions(df.copy(), im_state, og_chrom)    
     liklihood_df = df.copy()
@@ -86,7 +89,7 @@ def bin_polish(segment_file, cpg_intersect_file, mappability_file, meth_unmeth_i
     print("3b SSE: ", temp)
     
     # 4 - If 2 IM regions are separated by 1 200 bp bin, merge these regions
-    df.loc[(df['state'] != nd_state) &(df['state'] != im_state) & (df["state"].shift(-1) == im_state) & (df["state"].shift(1) == im_state) & (df['segment_length'] == 200) & (df["chr"].shift(1) == df['chr']) & (df["chr"].shift(-1) == df['chr']), 'state'] = im_state
+    df.loc[(df['state'] != nd_state) &(df['state'] != im_state) & (df["state"].shift(-1) == im_state) & (df["state"].shift(1) == im_state) & (df['segment_length'] == bin_sz) & (df["chr"].shift(1) == df['chr']) & (df["chr"].shift(-1) == df['chr']), 'state'] = im_state
     df = clean_df(df)
     num_im_regions(df.copy(), im_state, og_chrom)    
     liklihood_df = df.copy()
@@ -94,7 +97,7 @@ def bin_polish(segment_file, cpg_intersect_file, mappability_file, meth_unmeth_i
     print("4 SSE: ", temp)
     
     # 4b TRY - if <=600 state is within two IM states that have higher cpg density, merge
-    df.loc[(df['state'] != im_state) & (df['state'] != nd_state) & (df["state"].shift(-1) == im_state) & (df["state"].shift(1) == im_state) & (df['segment_length'] <= 600) & (df["chr"].shift(1) == df['chr']) & (df["chr"].shift(-1) == df['chr'])& (df["cpg_density"].shift(+1) >= df['cpg_density'])& (df["cpg_density"].shift(-1) >= df['cpg_density']), 'state'] = im_state
+    df.loc[(df['state'] != im_state) & (df['state'] != nd_state) & (df["state"].shift(-1) == im_state) & (df["state"].shift(1) == im_state) & (df['segment_length'] <= larger_thresh) & (df["chr"].shift(1) == df['chr']) & (df["chr"].shift(-1) == df['chr'])& (df["cpg_density"].shift(+1) >= df['cpg_density'])& (df["cpg_density"].shift(-1) >= df['cpg_density']), 'state'] = im_state
     df = clean_df(df)
     num_im_regions(df.copy(), im_state, og_chrom)    
     liklihood_df = df.copy()
@@ -110,8 +113,8 @@ def bin_polish(segment_file, cpg_intersect_file, mappability_file, meth_unmeth_i
     print("5 SSE: ", temp)
     
     # 6 - If small IM region is within two large other regions => classify as earlier bin state
-    df.loc[(df['state'] == im_state) &(df['state'].shift(1) == df['state'].shift(-1))& (df["state"].shift(1) != im_state) & (df['segment_length'].shift(-1) >= 600) & (df["state"].shift(-1) != im_state) & (df['segment_length'].shift(+1) >= 600) & (df['segment_length'] <=400) & (df["chr"].shift(1) == df['chr']) & (df["chr"].shift(-1) == df['chr'])& (df["segment_length"].shift(+1) >= df["segment_length"].shift(-1)), 'state'] = df['state'].shift(+1)
-    df.loc[(df['state'] == im_state) &(df['state'].shift(1) == df['state'].shift(-1))& (df["state"].shift(1) != im_state) & (df['segment_length'].shift(-1) >= 600) & (df["state"].shift(-1) != im_state) & (df['segment_length'].shift(+1) >= 600) & (df['segment_length'] <=400) & (df["chr"].shift(1) == df['chr']) & (df["chr"].shift(-1) == df['chr'])& (df["segment_length"].shift(-1) > df["segment_length"].shift(+1)), 'state'] = df['state'].shift(-1)
+    df.loc[(df['state'] == im_state) &(df['state'].shift(1) == df['state'].shift(-1))& (df["state"].shift(1) != im_state) & (df['segment_length'].shift(-1) >= larger_thresh) & (df["state"].shift(-1) != im_state) & (df['segment_length'].shift(+1) >= larger_thresh) & (df['segment_length'] <=medium_thresh) & (df["chr"].shift(1) == df['chr']) & (df["chr"].shift(-1) == df['chr'])& (df["segment_length"].shift(+1) >= df["segment_length"].shift(-1)), 'state'] = df['state'].shift(+1)
+    df.loc[(df['state'] == im_state) &(df['state'].shift(1) == df['state'].shift(-1))& (df["state"].shift(1) != im_state) & (df['segment_length'].shift(-1) >= larger_thresh) & (df["state"].shift(-1) != im_state) & (df['segment_length'].shift(+1) >= larger_thresh) & (df['segment_length'] <=medium_thresh) & (df["chr"].shift(1) == df['chr']) & (df["chr"].shift(-1) == df['chr'])& (df["segment_length"].shift(-1) > df["segment_length"].shift(+1)), 'state'] = df['state'].shift(-1)
     df = clean_df(df)
     print("FINAL 200 metric")
     num_im_regions(df.copy(), im_state, og_chrom)    
@@ -120,7 +123,7 @@ def bin_polish(segment_file, cpg_intersect_file, mappability_file, meth_unmeth_i
     print("6 SSE: ", temp)
     
     #7 - Remove small 200bp bins
-    df.loc[(df['segment_length'] <= 200), 'state'] = nd_state
+    df.loc[(df['segment_length'] <= segment_min_sz), 'state'] = nd_state
     df = clean_df(df)
     num_im_regions(df.copy(), im_state, og_chrom)
     
@@ -203,6 +206,7 @@ parser.add_argument("-k", dest="map_k")
 parser.add_argument("-y", dest="min_bin")
 parser.add_argument("-o", dest="output")
 parser.add_argument("-r", dest="region_out")
+parser.add_argument("-i", dest="bin_sz")
 
 args = vars(parser.parse_args())
     
@@ -216,8 +220,9 @@ meth_unmeth_intersect_file = args["um_track"]
 map_threshold = float(args["map_k"])
 segment_min_sz = args["min_bin"]
 region_output_path = args["region_out"]
+bin_sz = args["bin_sz"]
 
 im_state, nd_state, m_state, u_state = assign_states(state_labels_file)
 
-bin_polish(segment_file, cpg_intersect_file, mappability_file, meth_unmeth_intersect_file, blacklist_file, output_path, region_output_path, im_state, nd_state, m_state, u_state, map_threshold, segment_min_sz)
+bin_polish(segment_file, cpg_intersect_file, mappability_file, meth_unmeth_intersect_file, blacklist_file, output_path, region_output_path, im_state, nd_state, m_state, u_state, map_threshold, segment_min_sz, bin_sz)
 
