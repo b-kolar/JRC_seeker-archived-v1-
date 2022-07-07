@@ -2,7 +2,158 @@
 
 <img src="https://user-images.githubusercontent.com/52743495/173834089-526c540a-df4b-452f-964e-26104bf6f261.png" width="350" />
 
-**JRC Seeker** is a tool for identifying jointly regulated CpGs (JRCs) in the human methylome. These regions can be classified into a number of genomic phenomenon, such as imprinting regions or methylation quantitative trait loci (mQTLs). Developed by the Genetic Identification Lab at Erasmus Medical Center, a BAM file of WGBS reads can be inputted and the result of this tool is a list of JRC locations and their associated p-values.
+**JRC Seeker** is a tool for identifying jointly regulated CpGs (JRCs) in the human methylome. These regions can be classified into a number of genomic phenomenon, such as imprinting regions or methylation quantitative trait loci (mQTLs). Developed by the Genetic Identification Lab at Erasmus Medical Center, a BAM file of WGBS reads can be inputted and the result of this tool is a list of JRC locations and their associated p-values. JRC Seeker is built using a Snakemake pipeline that combines Python scripts with Linux shell commands. 
+
+## Requirements
+```
+Operating system: tested on Ubuntu 18.04.6 LTS (Bionic Beaver)
+R: tested on R version 3.6.1 (2019-07-05) -- "Action of the Toes"
+Python: Python 3.9.12
+RAM requirements: Do not attempt to run without at least 50 GB of RAM.
+Runtime: Approximately 1 day for 98 GB BAM file and 3.1 GB reference genome, using 20 cores.
+```
+
+## Dependencies
+
+### [conda](https://www.anaconda.com/products/individual)
+
+Download and install conda if you do not have it already on your machine.
+```
+wget https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh
+bash Anaconda3-2021.11-Linux-x86_64.sh
+
+```
+### [mamba](https://github.com/mamba-org/mamba)
+
+Install Mamba into your Conda-based python distribution
+```
+conda install -n base -c conda-forge mamba
+```
+Activate the Conda base environment (which now includes Mamba).
+```
+conda activate base
+```
+
+### [snakemake](https://snakemake.readthedocs.io/) (at least v4.3.1)
+
+Create a new conda environment called ```jrc_seeker``` with python 3.9 and snakemake in it.
+```
+mamba create -c conda-forge -c bioconda -n snakemake jrc_seeker
+```
+Activate the ```jrc_seeker``` conda environment.
+```
+conda activate jrc_seeker
+```
+Check whether Snakemake is succesfully installed by running the following command:
+```
+snakemake --help
+```
+
+### [biopython-1.79](https://biopython.org/docs/1.79/api/Bio.html)
+
+Install the following packages: biopython=1.79 .
+```
+conda install -c conda-forge biopython=1.79
+```
+
+### [tabix](https://github.com/samtools/htslib)
+
+```
+conda install -c bioconda tabix
+```
+
+### [pandas](https://pandas.pydata.org/)
+
+```
+conda install -c anaconda pandas
+```
+
+### [bgzip](https://github.com/xbrianh/bgzip.git)
+
+```
+conda install -c bioconda bgzip
+```
+
+### [ChromHMM](http://compbio.mit.edu/ChromHMM/)
+
+Quick instructions on running ChromHMM:
+
+1. Install Java 1.5 or later if not already installed.
+2. Download and unzip the ChromHMM.zip file using the following code snippit:
+
+```
+wget http://compbio.mit.edu/ChromHMM/ChromHMM.zip
+unzip ChromHMM.zip
+```
+
+### [bedtools](https://bedtools.readthedocs.io/en/latest/)
+
+```
+conda install -c bioconda bedtools
+```
+
+### [samtools](http://www.htslib.org/doc/samtools.html)
+
+Recommended version: 1.14
+
+```
+conda install -c bioconda samtools
+```
+
+### [samblaster](https://github.com/GregoryFaust/samblaster)
+
+```
+conda install -c bioconda samblaster
+```
+
+### [BISCUIT](https://huishenlab.github.io/biscuit/)
+
+```
+conda install -c bioconda biscuit
+```
+
+### [conda](https://www.anaconda.com/products/individual)
+
+Download and install conda if you do not have it already on your machine.
+```
+wget https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh
+bash Anaconda3-2021.11-Linux-x86_64.sh
+
+```
+
+## Downloading JRC Seeker
+
+Clone the repository with the following command:
+
+```
+mkdir jrc_seeker
+cd jrc_seeker
+git clone https://github.com/b-kolar/jrc_seeker.git
+```
+
+## Do a test run
+
+Now that you have JRC_seeker installed and ready to go, let's run an example to see if the pipeline is fully working. Snakemake only works if you are in the same directory as the ```Snakefile```, so ensure you are in the ```/jrc_seeker``` directory where the ```Snakefile``` is.
+
+In the ```/sample_data``` folder you can find some sample files. Be sure to edit the configuration file ```/sample_data/test_config.json``` with the correct paths. Later in this tutorial, you can find a detailed explantion of the contents of this sample data folder.
+
+To run the example, run the following:
+
+```
+conda activate jrc_seeker
+snakemake --cores 1 --configfile sample_data/test_config.json
+```
+
+On your screen, you will notice the steps of the pipeline running one-by-one. You can find the output of this test run in ```/sample_data/output``` and can compare your output to the expected output in the ```/sample_data/expected_output``` directory.
+
+**Note**
+You will notice that there is a warning in the ```label_states``` step stating: "ERROR: UNMETHYLATED STATE NOT CLASSIFIED CORRECTLY. RUN ON MORE DATA". The sample BAM file used does not contain enough data for ChromHMM to label all four states (methylated, unmethylated, intermediately methylated, no data). With this small dataset, the unmethylated state is not found. You can also see this below, as pictured in the ```/sample_data/expected_output/chromhmm/output_files/webpage_4.html``` file, where there is no unmethylated state in the emissions matrix of the ChromHMM output:
+
+![image](https://user-images.githubusercontent.com/52743495/177798760-6eabb423-584f-4513-833d-17bd7b237157.png)
+
+For example, in this image you can see that State 1 is intermediately methylated and State 2 is methylated, but there is no apparent unmethylated state.
+
+Keep an eye on these warnings when running the pipeline and check the emissions matrix of the ChromHMM output to ensure that all states are deconvoluted.
 
 ## Process Overview
 A number of steps are used to complete this analysis.
@@ -105,14 +256,13 @@ state  methylated  unmethylated label
 ```
 
 ## Getting started
-JRC Seeker is built using a Snakemake pipeline that combines Python scripts with Linux shell commands. To get started with using JRC Seeker, there are three main steps to follow.
+Now that you have JRC_seeker and its dependencies installed, you are ready to roll! To run with using JRC_seeker, there are three main steps to follow.
 
 1. **Prepare input files** - Get your data ready for analysis and prepare input files in required formats.
-2. **Download JRC Seeker** - Download the source code of this project and install dependencies.
-3. **Edit the configuation file** - Adjust settings in the ```config.json``` file to suit your analysis needs.
-4. **Run JRC Seeker** - Run the snakemake pipeline.
+2. **Edit the configuration file** - Adjust settings in the ```config.json``` file to suit your analysis needs.
+3. **Run JRC Seeker** - Run the snakemake pipeline.
 
-### Input files
+### Prepare input files
 To use JRC Seeker, the following files are required:
 1. BAM file
 2. Reference Genome
@@ -194,186 +344,55 @@ For hg38, the hg19 file was lifted over using [UCSC LiftOver](https://genome.ucs
 
 Further details on the LiftOver settings and the blacklist regions files are listed in the ```/assets/blacklist_regions/README.md```.
 
-## Downloading JRC Seeker
+### Edit the configuration file
 
-Clone the repository with the following command:
+Snakemake uses a configuration file to locate external files and parameter values. Make a copy of the sample configuration file ```/sample_data/test_config.json``` and edit the file and directory paths to point towards the respective input files and directories on your machine (use absolute paths). Furthermore, be sure to edit the parameters in the configuration file. 
 
+The configuration file is organized into three sections, for readability:
+_DIRECTORIES_: Directories to add your own path to.
+_FILES_: Files to add your own path to.
+_PARAMETERS_: Parameters to change. The listed default values for parameters that are listed at the end of this tutorial are the suggested values per parameter. 
+
+Here are a couple of important reminders:
+- If running JRC_seeker on your entire BAM file, be sure to change the region value to none:
+```"region" : "none"```
+- Ensure you change the number of binokulars cores to an amount your machine can handle, such as 4:
+```"binokulars_cores" : 4```
+
+A detailed list of the parameters in the configuration file are found at the end of this tutorial.
+
+### Run JRC_seeker
+
+Go into the JRC_seeker directory by:
 ```
-$ git clone https://github.com/b-kolar/binokulars.git
-```
-Enter the repository by cd binokulars.
-
-## Install dependencies
-
-### [binokulars](https://github.com/BenjaminPlanterose/Binokulars)
-
-Follow the installation instructions outlined on: https://github.com/BenjaminPlanterose/Binokulars.
-
-### [ChromHMM](http://compbio.mit.edu/ChromHMM/)
-
-Quick instructions on running ChromHMM:
-
-1. Install Java 1.5 or later if not already installed.
-2. Download and unzip the ChromHMM.zip file using the following code snippit:
-
-```
-wget http://compbio.mit.edu/ChromHMM/ChromHMM.zip
-unzip ChromHMM.zip
+cd <Path to JRC_seeker>
 ```
 
-### [bedtools](https://bedtools.readthedocs.io/en/latest/)
-
-```
-conda install -c bioconda bedtools
-```
-
-### [samtools](http://www.htslib.org/doc/samtools.html)
-
-Recommended version: 1.14
-
-```
-conda install -c bioconda samtools
-```
-
-### [samblaster](https://github.com/GregoryFaust/samblaster)
-
-```
-conda install -c bioconda samblaster
-```
-
-### [BISCUIT](https://huishenlab.github.io/biscuit/)
-
-```
-conda install -c bioconda biscuit
-```
-
-## Set up conda environment
-- Download [Conda](https://www.anaconda.com/products/individual) with Python 3.9
-
-```
-wget https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh
-```
-
-Install Conda
-```
-bash Anaconda3-2021.11-Linux-x86_64.sh
-```
-
-- [Snakemake](https://snakemake.readthedocs.io/) (at least v4.3.1) and [biopython-1.79](https://biopython.org/docs/1.79/api/Bio.html)
-
-Install Mamba into your Conda-based python distribution
-```
-conda install -n base -c conda-forge mamba
-```
-Activate the Conda base environment (which now includes Mamba).
-```
-conda activate base
-```
-Create a new conda environment called ```jrc_seeker``` with snakemake in it.
-```
-mamba create -c conda-forge -c bioconda -n snakemake jrc_seeker
-```
-Activate the ```jrc_seeker``` conda environment.
-```
-conda activate jrc_seeker
-```
-Check whether Snakemake is succesfully installed by running the following command:
-```
-snakemake --help
-```
-Install the following packages: biopython=1.79 .
-```
-conda install -c conda-forge biopython=1.79
-```
-
-## Running JRC Seeker
-Go into the JRC Seeker directory by:
-```
-cd <Path to JRC_Seeker>
-```
 Make sure to activate the conda environment by: 
 ```
 conda activate jrc_seeker
 ```
+
+To make sure there are no problems with your configuration file, do a dry run of the snakemake pipeline:
+
+```
+snakemake -n --configfile [path to config file]
+```
+
+To run the JRC_Seeker pipeline, simply run the command below, where the number of cores and the path to your edited configuration file is specified.
 ```
 snakemake --cores [amount of cores] --configfile [path to config file]
 ```
 
 *Note:* It is recommended to run with 1 core and specify in the ```config.json``` file the number of cores to run the binokulars step with. If the number of snakemake cores is above 1, the number of cores the final binokulars step uses will be the product of the snakemake cores and the value of the ```binokulars_cores``` field in the ```config.json``` file.
 
+## A note on time 
 
-### Test run
-In order to perform a testrun of JRC Seeker go into the JRC Seeker directory and execute the following command:
-```
-snakemake --cores [amount of cores] --configfile sample_data/config_test.json
-```
+The final step of the snakemake pipeline is the actual binokulars run. From a 98 GB BAM file of pooled blood samples of 12 individuals and a 3.1 GB reference genome (entire hg19 reference genome), ~400,000 regions are found to be intermediately methylated regions after BinPolish. It takes approximately 2 seconds for binokulars to process each region. As a result, for 4 cores we expect a binokulars run to take ~55 hours. Using 20 cores, this takes ~11 hours. 
 
-## Config file parameters
+The binokulars step is the bottleneck of this pipeline, but it is also the most parallelizable. The remainder of the pipeline takes under 10 hours for the above mentioned dataset. We recommend using ~20 cores to run the entire pipeline within a day.
 
-Paths to change:
-
-```
-output_folder : folder all files will be outputted in (absolute path)
-
-path_to_config_file : path to Snakemake config.json file (absolute path)
-
-path_to_scripts : path to Binokulars scripts folder
-
-path_to_reference_genome : path to FASTA reference genome (absolute path)
-
-path_to_bam : path to BAM file (absolute path)
-
-sample_name : name of your sample (don't use spaces or the following characters: "/" "," "." "\")
-
-temp_folder : some computations might be too large for default temp folders. Put the default temp folder path here to add a new path (absolute path)
-
-path_to_chrom_length_file : path to chromosome length text file used by ChromHMM. Found in the CHROMSIZES folder of ChromHMM. Use the file 
-corresponding the the genome version your are using (e.g. hg19.txt) (absolute path)
-
-chromhmm : path to ChromHMM jar file (absolute path)
-
-path_to_mappability_file : path to mappability file. For hg19 or hg38, use the ones in the assets/mappability_files folder. Otherwise, add the absolute path to the version for your genome.
-
-chromosomes_file : path to chromosomes.txt file outlined in the "Input Files" step of this tutorial (absolute path)
-
-binokulars_output_directory : name of directory for binokulars output (don't use spaces or the following characters: "/" "," "." "\")
-
-path_to_blacklist : path to blacklist regions file. For hg19 or hg38, use the ones in the assets/blacklist_regions folder. Otherwise, add the absolute path to the version for your genome.
-```
-
-Model parameters:
-
-```
-bin_size : size of bins for binzarization and ChromHMM segmentation. Measured in base pairs. Recommended not to change. (default: 200)
-
-region : if a specific region of the BAM file is to be investigated OR if the BAM file contains one chromosome, specify this here (e.g. "chr1" or "chr20:0-1000"). Only one region is permitted and if changing this setting, ensure that the chromosomes.txt file is manually created (see instructions above). In most circumstances, the entire BAM file is to be processed and this should thus be set to "none". (default: "none")
-
-lower_im_methylation_bound : intermediately methylated methylation value for lower boundary for binarization. Recommended not to change (default: 0.2)
-
-upper_im_methylation_bound : intermediately methylated methylation value for upper boundary for binarization. Recommended not to change (default: 0.8)
-
-data_assignment_setting : if (un)methylated counts are on the bin boundary, they are added to the earlier or "left" bin. Recommended not to change (default: "left", "right" is other option)
-
-k_threshold : threshold for number of reads needed for bin to not be set to a no-data state (see "Binarize methylation data" section). (default: 3)
-
-n_states : number of states for ChromHMM to predict. Binarize subroutine depends on 4 states. Recommended not to change. (default: "4")
-
-chromhmm_it : number of ChromHMM iterations. Recommend 500 to ensure convergence, but ChromHMM default for maxiterations in the LearnModel command is 200. (default: "500")
-
-map_threshold : threshold overlap coverage (as a percent) of intermediately methylated regions overlapping with low mappability regions for them to be discarded. Recommend not to change (default: 0.95)
-
-segment_min_sz : BinPolish discards regions equal or smaller to this threshold size. (default: 200)
-
-permutation_iterations : number of permutations that binokulars runs per region. (default: 1000)
-
-seed_binokulars : binokulars seed value. (default: 4)
-
-binokulars_cores : number of cores that the binokulars subroutine uses. (default: 4)
-
-flank_length : number of base pairs that binokulars flanks regions by. Recommend not to change (default: 500)
-```
-
-## Sample Data
+## Overview of sample data
 
 In the ```/sample_data``` folder you can find some sample files to test if JRC Seeker is running properly on your machine. Below you can find an explanation of where these files come from and how we created them, just in case you were interested:
 
@@ -428,12 +447,70 @@ The FASTA file was indexed by BISCUIT using the following command, which generat
 biscuit index chr20.fa
 ```
 
-## Time 
+## Config file parameters
 
-The final step of the snakemake pipeline is the actual binokulars run. To process ~400,000 regions from pooled blood samples of 12 individuals, it takes approximately 2 seconds per site. As a result, for 4 cores we expect a binokulars run to take ~55 hours. Using 20 cores, this takes ~11 hours. 
+DIRECTORIES:
+```
+output_folder : folder all files will be outputted in (absolute path)
 
-The binokulars step is the bottleneck of this pipeline, but it is also the most parallelizable. The remainder of the pipeline takes under 10 hours for the above mentioned dataset. We recommend using ~20 cores to run the entire pipeline within a day.
- 
+path_to_scripts : path to JRC_seeker scripts folder
+
+temp_folder : some computations might be too large for default temp folders. Put the default temp folder path here to add a new path (absolute path)
+```
+
+FILES:
+```
+path_to_config_file : path to Snakemake config.json file (absolute path)
+
+path_to_reference_genome : path to FASTA reference genome (absolute path)
+
+path_to_bam : path to BAM file (absolute path)
+
+path_to_chrom_length_file : path to chromosome length text file used by ChromHMM. Found in the CHROMSIZES folder of ChromHMM. Use the file corresponding the the genome version your are using (e.g. hg19.txt) (absolute path)
+
+chromhmm : path to ChromHMM jar file (absolute path)
+
+path_to_mappability_file : path to mappability file. For hg19 or hg38, use the ones in the assets/mappability_files folder. Otherwise, add the absolute path to the version for your genome.
+
+chromosomes_file : path to chromosomes.txt file outlined in the "Input Files" step of this tutorial (absolute path)
+
+path_to_blacklist : path to blacklist regions file. For hg19 or hg38, use the ones in the assets/blacklist_regions folder. Otherwise, add the absolute path to the version for your genome.
+```
+
+PARAMETERS:
+```
+sample_name : name of your sample (don't use spaces or the following characters: "/" "," "." "\")
+
+bin_size : size of bins for binzarization and ChromHMM segmentation. Measured in base pairs. Recommended not to change. (default: 200)
+
+binokulars_output_directory : name of directory for binokulars output (don't use spaces or the following characters: "/" "," "." "\")
+
+region : if a specific region of the BAM file is to be investigated OR if the BAM file contains one chromosome, specify this here (e.g. "chr1" or "chr20:0-1000"). Only one region is permitted and if changing this setting, ensure that the chromosomes.txt file is manually created (see instructions above). In most circumstances, the entire BAM file is to be processed and this should thus be set to "none". (default: "none")
+
+lower_im_methylation_bound : intermediately methylated methylation value for lower boundary for binarization. Recommended not to change (default: 0.2)
+
+upper_im_methylation_bound : intermediately methylated methylation value for upper boundary for binarization. Recommended not to change (default: 0.8)
+
+data_assignment_setting : if (un)methylated counts are on the bin boundary, they are added to the earlier or "left" bin. Recommended not to change (default: "left", "right" is other option)
+
+k_threshold : threshold for number of reads needed for bin to not be set to a no-data state (see "Binarize methylation data" section). (default: 3)
+
+n_states : number of states for ChromHMM to predict. Binarize subroutine depends on 4 states. Recommended not to change. (default: "4")
+
+chromhmm_it : number of ChromHMM iterations. Recommend 500 to ensure convergence, but ChromHMM default for maxiterations in the LearnModel command is 200. (default: "500")
+
+map_threshold : threshold overlap coverage (as a percent) of intermediately methylated regions overlapping with low mappability regions for them to be discarded. Recommend not to change (default: 0.95)
+
+segment_min_sz : BinPolish discards regions equal or smaller to this threshold size. (default: 200)
+
+permutation_iterations : number of permutations that binokulars runs per region. (default: 1000)
+
+seed_binokulars : binokulars seed value. (default: 4)
+
+binokulars_cores : number of cores that the binokulars subroutine uses. (default: 4)
+
+flank_length : number of base pairs that binokulars flanks regions by. Recommend not to change (default: 500)
+```
 
 ## Sources
 
