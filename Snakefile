@@ -173,13 +173,14 @@ rule binpolish:
 
 	params:
 		map_threshold=config["map_threshold"],
-		segment_min_sz=config["segment_min_sz"]
+		segment_min_sz=config["segment_min_sz"],
+		bin_sz=config["bin_size"]
 	output:
 		bp=config["output_folder"]+"/binpolish/polished_segmentation.bed",
 		reg=config["output_folder"]+"/binpolish/im_regions.txt"
 	shell:
 		"""
-		python scripts/binpolish.py -s {input.segments} -c {input.cpg} -b {input.blacklist} -m {input.mappability} -t {input.um_processed} -l {input.labels} -k {params.map_threshold} -y {params.segment_min_sz} -o {output.bp} -r {output.reg}
+		python scripts/binpolish.py -s {input.segments} -c {input.cpg} -b {input.blacklist} -m {input.mappability} -t {input.um_processed} -l {input.labels} -k {params.map_threshold} -y {params.segment_min_sz} -o {output.bp} -r {output.reg} -i {params.bin_sz}
 		"""
 
 
