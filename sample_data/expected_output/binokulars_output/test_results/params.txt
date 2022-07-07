@@ -1,0 +1,1 @@
+[1] "target_file = /home/bronte/opt/jrc_seeker/sample_data/output/binpolish/im_regions.txt; epiread_chr_dir = /home/bronte/opt/jrc_seeker/sample_data/output/binokulars_output/CHR; bin_length = 200; N_iter = 1000; seed = 4; res_dir = /home/bronte/opt/jrc_seeker/sample_data/output/binokulars_output/test_results; Lflank = 500; nCores = 20"

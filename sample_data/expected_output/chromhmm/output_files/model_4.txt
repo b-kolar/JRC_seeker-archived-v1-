@@ -1,0 +1,37 @@
+4	2	E	-97846.24986010967	500
+probinit	1	0.0
+probinit	2	0.0
+probinit	3	0.0
+probinit	4	1.0
+transitionprobs	1	1	0.19283244350032896
+transitionprobs	1	2	0.5805741678645727
+transitionprobs	1	3	0.22659338863509826
+transitionprobs	1	4	0.0
+transitionprobs	2	1	0.1409277552575457
+transitionprobs	2	2	0.7710474205257487
+transitionprobs	2	3	0.08799220541221894
+transitionprobs	2	4	3.261880448660888E-5
+transitionprobs	3	1	0.11680286312642986
+transitionprobs	3	2	0.1851324293273472
+transitionprobs	3	3	0.698064707546223
+transitionprobs	3	4	0.0
+transitionprobs	4	1	3.934106960730325E-6
+transitionprobs	4	2	5.309323984052374E-6
+transitionprobs	4	3	0.0
+transitionprobs	4	4	0.9999907565690552
+emissionprobs	1	0	methylated	0	0.022222886418672615
+emissionprobs	1	0	methylated	1	0.9777771135813274
+emissionprobs	1	1	unmethylated	0	0.12396530161676238
+emissionprobs	1	1	unmethylated	1	0.8760346983832376
+emissionprobs	2	0	methylated	0	0.6381152052591458
+emissionprobs	2	0	methylated	1	0.36188479474085417
+emissionprobs	2	1	unmethylated	0	0.9999999997969398
+emissionprobs	2	1	unmethylated	1	2.0306017451963748E-10
+emissionprobs	3	0	methylated	0	0.9664441524860385
+emissionprobs	3	0	methylated	1	0.03355584751396149
+emissionprobs	3	1	unmethylated	0	0.9724067242916486
+emissionprobs	3	1	unmethylated	1	0.02759327570835137
+emissionprobs	4	0	methylated	0	1.0
+emissionprobs	4	0	methylated	1	0.0
+emissionprobs	4	1	unmethylated	0	1.0
+emissionprobs	4	1	unmethylated	1	0.0
