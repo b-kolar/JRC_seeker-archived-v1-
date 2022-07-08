@@ -1,3 +1,4 @@
+# Imports
 import pandas as pd
 import numpy as np
 import time
@@ -6,20 +7,15 @@ from os import path
 from argparse import ArgumentParser
 
 parser = ArgumentParser()
-
 parser.add_argument("-i", dest="input")
 parser.add_argument("-o", dest="output")
-
 args = vars(parser.parse_args())
-
 input_file=args["input"]
 output_file=args["output"]
 
 df = pd.read_csv(open(input_file), skiprows=[0], sep='\t', names=["state","methylated", "unmethylated"])
 df = df.sort_values(["methylated"], ascending = (False)).reset_index(drop=True)
-
 df["label"] = np.nan
-
 m_index = -1
 u_index = -1
 
@@ -51,7 +47,6 @@ if (df.at[m_index, "unmethylated"] > df.at[m_index, "methylated"]):
 
 print("Saving state data")
 print(df)
-
 df.to_csv(output_file, sep="\t", index=False, header=True)
 
     

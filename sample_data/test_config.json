@@ -5,7 +5,6 @@
 	"temp_folder" : "/media/nw_disk2/bronte/temp_files",
 	"path_to_jrc_seeker" : "/home/bronte/opt/jrc_seeker",
 	
-	
 	"FILES" : "",
 	"path_to_config_file" : "/home/bronte/opt/jrc_seeker/sample_data/test_config.json",
 	"path_to_reference_genome" : "/home/bronte/opt/jrc_seeker/sample_data/reference_genome/chr20.fa",
@@ -34,6 +33,4 @@
 	"binokulars_output_directory" : "test_results",
 	"binokulars_cores" : 20,
 	"flank_length" : 500
-
-
 }

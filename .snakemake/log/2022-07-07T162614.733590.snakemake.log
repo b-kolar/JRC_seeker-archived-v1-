@@ -1,0 +1,113 @@
+Building DAG of jobs...
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	1	binarize
+	1	binokulars
+	1	binpolish
+	1	binpolish_assets
+	1	epiread
+	1	format_meth_data
+	1	label_states
+	1	learnmodel
+	1	meth_info
+	1	pileup
+	1	process_epiread
+	12
+
+rule pileup:
+    input: /home/bronte/opt/jrc_seeker/sample_data/sample_data.bam, /home/bronte/opt/jrc_seeker/sample_data/reference_genome/chr20.fa
+    output: /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/my_pileup.vcf.gz
+    jobid: 10
+
+Finished job 10.
+1 of 12 steps (8%) done
+
+rule meth_info:
+    input: /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/my_pileup.vcf.gz
+    output: /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/meth_info.bed
+    jobid: 11
+
+Finished job 11.
+2 of 12 steps (17%) done
+
+rule format_meth_data:
+    input: /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/meth_info.bed
+    output: /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/methylation_data.bed, /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/methylated_track.bed, /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/unmethylated_track.bed
+    jobid: 8
+
+Finished job 8.
+3 of 12 steps (25%) done
+
+rule binarize:
+    input: /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/methylation_data.bed
+    output: /home/bronte/opt/jrc_seeker/sample_data/output/chromhmm/input_files/test_run_chr20_binary.txt
+    jobid: 9
+
+Finished job 9.
+4 of 12 steps (33%) done
+
+rule learnmodel:
+    input: /home/bronte/opt/jrc_seeker/sample_data/output/chromhmm/input_files/test_run_chr20_binary.txt
+    output: /home/bronte/opt/jrc_seeker/sample_data/output/chromhmm/output_files/test_run_4_segments.bed, /home/bronte/opt/jrc_seeker/sample_data/output/chromhmm/output_files/emissions_4.txt
+    jobid: 5
+
+Finished job 5.
+5 of 12 steps (42%) done
+
+rule epiread:
+    input: /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/my_pileup.vcf.gz
+    output: /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/test_run.epiread, /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/test_run_snps.bed
+    jobid: 7
+
+Finished job 7.
+6 of 12 steps (50%) done
+
+rule binpolish_assets:
+    input: /home/bronte/opt/jrc_seeker/sample_data/output/chromhmm/output_files/test_run_4_segments.bed, /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/methylated_track.bed, /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/unmethylated_track.bed
+    output: /home/bronte/opt/jrc_seeker/sample_data/output/binpolish/assets/cpg_intersection.bed, /home/bronte/opt/jrc_seeker/sample_data/output/binpolish/assets/mappability_coverage.bed, /home/bronte/opt/jrc_seeker/sample_data/output/binpolish/assets/meth_intersect.bed, /home/bronte/opt/jrc_seeker/sample_data/output/binpolish/assets/unmeth_intersect.bed, /home/bronte/opt/jrc_seeker/sample_data/output/binpolish/assets/meth_and_unmeth_tracks_processed.bed, /home/bronte/opt/jrc_seeker/sample_data/output/binpolish/assets/blacklist_intersection.bed
+    jobid: 4
+
+Finished job 4.
+7 of 12 steps (58%) done
+
+rule label_states:
+    input: /home/bronte/opt/jrc_seeker/sample_data/output/chromhmm/output_files/emissions_4.txt
+    output: /home/bronte/opt/jrc_seeker/sample_data/output/binpolish/assets/state_labels.txt
+    jobid: 6
+
+Finished job 6.
+8 of 12 steps (67%) done
+
+rule binpolish:
+    input: /home/bronte/opt/jrc_seeker/sample_data/output/chromhmm/output_files/test_run_4_segments.bed, /home/bronte/opt/jrc_seeker/sample_data/output/binpolish/assets/state_labels.txt, /home/bronte/opt/jrc_seeker/sample_data/output/binpolish/assets/cpg_intersection.bed, /home/bronte/opt/jrc_seeker/sample_data/output/binpolish/assets/mappability_coverage.bed, /home/bronte/opt/jrc_seeker/sample_data/output/binpolish/assets/meth_and_unmeth_tracks_processed.bed, /home/bronte/opt/jrc_seeker/sample_data/output/binpolish/assets/blacklist_intersection.bed
+    output: /home/bronte/opt/jrc_seeker/sample_data/output/binpolish/polished_segmentation.bed, /home/bronte/opt/jrc_seeker/sample_data/output/binpolish/im_regions.txt
+    jobid: 2
+
+Finished job 2.
+9 of 12 steps (75%) done
+
+rule process_epiread:
+    input: /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/test_run.epiread
+    output: /home/bronte/opt/jrc_seeker/sample_data/output/binokulars_output/CHR/chr20
+    jobid: 3
+
+Finished job 3.
+10 of 12 steps (83%) done
+
+rule binokulars:
+    input: /home/bronte/opt/jrc_seeker/sample_data/output/binpolish/im_regions.txt, /home/bronte/opt/jrc_seeker/sample_data/output/binokulars_output/CHR/chr20
+    output: /home/bronte/opt/jrc_seeker/sample_data/output/binokulars_output/test_results/p_values.txt
+    jobid: 1
+
+Finished job 1.
+11 of 12 steps (92%) done
+
+localrule all:
+    input: /home/bronte/opt/jrc_seeker/sample_data/output/binokulars_output/test_results/p_values.txt
+    jobid: 0
+
+Finished job 0.
+12 of 12 steps (100%) done
