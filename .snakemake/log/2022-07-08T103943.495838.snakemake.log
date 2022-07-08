@@ -1,0 +1,49 @@
+Building DAG of jobs...
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	1	binarize
+	1	binokulars
+	1	binpolish
+	1	binpolish_assets
+	1	epiread
+	1	format_meth_data
+	1	label_states
+	1	learnmodel
+	1	meth_info
+	1	pileup
+	1	process_epiread
+	12
+
+rule pileup:
+    input: /home/bronte/opt/jrc_seeker/sample_data/sample_data.bam, /home/bronte/opt/jrc_seeker/sample_data/reference_genome/chr20.fa
+    output: /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/my_pileup.vcf.gz
+    jobid: 10
+
+Error in rule pileup:
+    jobid: 10
+    output: /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/my_pileup.vcf.gz
+
+RuleException:
+CalledProcessError in line 19 of /home/bronte/opt/jrc_seeker/Snakefile:
+Command ' set -euo pipefail;  
+		cd /home/bronte/opt/jrc_seeker/sample_data/output
+		mkdir -p biscuit_output
+		mkdir -p binpolish/assets
+		mkdir -p chromhmm/input_files
+		mkdir -p chromhmm/output_files
+		mkdir -p binokulars_output
+		if [[ "chr20" != "none" ]]; then
+			biscuit pileup -g chr20 -o /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/my_pileup.vcf /home/bronte/opt/jrc_seeker/sample_data/reference_genome/chr20.fa /home/bronte/opt/jrc_seeker/sample_data/sample_data.bam	
+		else
+			biscuit pileup -o /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/my_pileup.vcf /home/bronte/opt/jrc_seeker/sample_data/reference_genome/chr20.fa /home/bronte/opt/jrc_seeker/sample_data/sample_data.bam
+		fi
+		bgzip /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/my_pileup.vcf
+		tabix -p vcf /home/bronte/opt/jrc_seeker/sample_data/output/biscuit_output/my_pileup.vcf.gz ' returned non-zero exit status 127.
+  File "/home/bronte/opt/jrc_seeker/Snakefile", line 19, in __rule_pileup
+  File "/usr/lib/python3.6/concurrent/futures/thread.py", line 56, in run
+Will exit after finishing currently running jobs.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2022-07-08T103943.495838.snakemake.log

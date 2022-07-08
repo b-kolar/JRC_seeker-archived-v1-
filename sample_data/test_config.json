@@ -1,9 +1,9 @@
 {
 	"DIRECTORIES" : "",
 	"output_folder" : "/home/bronte/opt/jrc_seeker/sample_data/output",
-	"path_to_scripts" : "/binokulars/scripts/",
+	"path_to_scripts" : "/jrc_seeker/scripts/",
 	"temp_folder" : "/media/nw_disk2/bronte/temp_files",
-	
+	"path_to_jrc_seeker" : "/home/bronte/opt/jrc_seeker",
 	
 	"FILES" : "",
 	"path_to_config_file" : "/home/bronte/opt/jrc_seeker/sample_data/test_config.json",
@@ -33,6 +33,4 @@
 	"binokulars_output_directory" : "test_results",
 	"binokulars_cores" : 20,
 	"flank_length" : 500
-
-
 }
