@@ -112,12 +112,28 @@ conda install -c bioconda samblaster
 conda install -c bioconda biscuit
 ```
 
-### [conda](https://www.anaconda.com/products/individual)
+### R
 
-Download and install conda if you do not have it already on your machine.
+If not installed already, be sure you have R version 4.1.2 or greater.
+
+### R dependencies
+
+To install R dependencies, open R by running:
+```bash
+R
 ```
-wget https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh
-bash Anaconda3-2021.11-Linux-x86_64.sh
+And run the following R commands:
+
+```r
+# To install
+install.packages('data.table')
+install.packages('parallel')
+install.packages('MASS')
+
+# To verify that installation was succesful
+library(data.table)
+library(parallel)
+library(MASS)
 ```
 
 ## Downloading JRC_Seeker
