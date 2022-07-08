@@ -271,7 +271,8 @@ rule binokulars:
 		c=config["binokulars_cores"],
 		f=config["flank_length"],
 		info=config["path_to_config_file"],
-		out=config["output_folder"]
+		out=config["output_folder"],
+		path_binokulars=config["path_to_jrc_seeker"] + "/scripts/binokulars"
 	output:
 		p_val = config["output_folder"] + "/binokulars_output/test_results/p_values.txt"
 	shell:
@@ -279,7 +280,7 @@ rule binokulars:
 		#cp {params.info} {params.out}
 		cd {params.path}
 		rm -rf {params.o} 
-		binokulars -t {input.regions} -i {params.chr} -l {params.l} -N {params.N} -f {params.f} -R {params.R} -o {params.o} -c {params.c}	
+		{params.path_binokulars} -t {input.regions} -i {params.chr} -l {params.l} -N {params.N} -f {params.f} -R {params.R} -o {params.o} -c {params.c}	
 		"""
 
 
