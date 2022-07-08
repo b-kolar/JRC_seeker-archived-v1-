@@ -457,6 +457,8 @@ output_folder : folder all files will be outputted in (absolute path)
 path_to_scripts : path to JRC_seeker scripts folder
 
 temp_folder : some computations might be too large for default temp folders. Put the default temp folder path here to add a new path (absolute path)
+
+path_to_jrc_seeker : absolute path to JRC_seeker (e.g. /home/opt/jrc_seeker). This is the folder where the Snakefile is located.
 ```
 
 FILES:
