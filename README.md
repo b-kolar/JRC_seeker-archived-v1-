@@ -55,11 +55,19 @@ Install the following packages: biopython=1.79 .
 ```
 conda install -c conda-forge biopython=1.79
 ```
+or
+```
+pip install "biopython==1.79"
+```
 
 ### [tabix](https://github.com/samtools/htslib)
 
 ```
 conda install -c bioconda tabix
+```
+or
+```
+pip install tabix
 ```
 
 ### [pandas](https://pandas.pydata.org/)
@@ -67,11 +75,19 @@ conda install -c bioconda tabix
 ```
 conda install -c anaconda pandas
 ```
+or
+```
+pip install pandas
+```
 
 ### [bgzip](https://github.com/xbrianh/bgzip.git)
 
 ```
 conda install -c bioconda bgzip
+```
+or
+```
+pip install bgzip
 ```
 
 ### [ChromHMM](http://compbio.mit.edu/ChromHMM/)
@@ -91,6 +107,10 @@ unzip ChromHMM.zip
 ```
 conda install -c bioconda bedtools
 ```
+or
+```
+pip install bedtools
+```
 
 ### [samtools](http://www.htslib.org/doc/samtools.html)
 
@@ -99,11 +119,19 @@ Recommended version: 1.14
 ```
 conda install -c bioconda samtools
 ```
+or
+```
+pip install "samtools==1.14"
+```
 
 ### [samblaster](https://github.com/GregoryFaust/samblaster)
 
 ```
 conda install -c bioconda samblaster
+```
+or
+```
+pip install samblaster
 ```
 
 ### [BISCUIT](https://huishenlab.github.io/biscuit/)
