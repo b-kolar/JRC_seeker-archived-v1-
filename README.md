@@ -42,7 +42,8 @@ Create a new conda environment called ```jrc_seeker``` with snakemake and python
 mamba create -c conda-forge -c bioconda -n jrc_seeker snakemake python=3.9
 ```
 
-Option: If conda-forge did not work for you, simply create a conda environment like this and use the pip command options below:
+**Option:**
+If conda-forge did not work for you, simply create a conda environment like this and use the pip command options below:
 ```
 conda create -n jrc_seeker python=3.9 snakemake
 ```
