@@ -34,12 +34,19 @@ Activate the Conda base environment (which now includes Mamba).
 conda activate base
 ```
 
+
 ### [snakemake](https://snakemake.readthedocs.io/) (at least v4.3.1)
 
-Create a new conda environment called ```jrc_seeker``` with python 3.9 and snakemake in it.
+Create a new conda environment called ```jrc_seeker``` with snakemake and python 3.9 in it.
 ```
-mamba create -c conda-forge -c bioconda -n snakemake jrc_seeker
+mamba create -c conda-forge -c bioconda -n jrc_seeker snakemake python=3.9
 ```
+
+Option: If conda-forge did not work for you, simply create a conda environment like this and use the pip command options below:
+```
+conda create -n jrc_seeker python=3.9 snakemake
+```
+
 Activate the ```jrc_seeker``` conda environment.
 ```
 conda activate jrc_seeker
